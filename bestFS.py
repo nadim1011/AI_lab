@@ -1,23 +1,22 @@
 import heapq
 
-# Goal State
 GOAL_STATE = [[1, 2, 3],
               [4, 5, 6],
-              [7, 8, 0]]  # 0 is the empty tile
+              [7, 8, 0]]  
 
 DIRECTIONS = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
-
-def manhattan_distance(state):
-    distance = 0
+#manhattan_distance
+def MHdis(state):
+    dist = 0
     for i in range(3):
         for j in range(3):
             value = state[i][j]
             if value != 0:
                 ii = (value - 1) // 3
                 jj = (value - 1) % 3
-                distance += abs(i - ii) + abs(j - jj)
-    return distance
+                dist += abs(i - ii) + abs(j - jj)
+    return dist
 
 
 def is_goal(state):
@@ -31,7 +30,6 @@ def find_zero(state):
                 return i, j
 
 
-# neighbors by sliding tiles
 def get_neighbors(state):
     neighbors = []
     x, y = find_zero(state)
@@ -46,10 +44,9 @@ def get_neighbors(state):
     return neighbors
 
 
-# Greedy Best First Search using Manhattan heuristic
 def find(start):
     heap = []
-    heapq.heappush(heap, (manhattan_distance(start), start, []))
+    heapq.heappush(heap, (MHdis(start), start, []))
     visited = set()
 
     while heap:
@@ -68,13 +65,13 @@ def find(start):
             if neighbor_tuple not in visited:
                 heapq.heappush(
                     heap,
-                    (manhattan_distance(neighbor), neighbor, path + [state])
+                    (MHdis(neighbor), neighbor, path + [state])
                 )
 
     return None
 
 
-# Example Start State
+
 start_state = [[1, 2, 3],
                [4, 0, 6],
                [7, 5, 8]]
