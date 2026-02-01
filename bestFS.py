@@ -1,66 +1,91 @@
 import heapq
 
-GOAL = (1, 2, 3,
-        4, 5, 6,
-        7, 8, 0)
+# Goal State
+GOAL_STATE = [[1, 2, 3],
+              [4, 5, 6],
+              [7, 8, 0]]  # 0 is the empty tile
 
-MOVES = [(-1,0), (1,0), (0,-1), (0,1)]
+DIRECTIONS = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
-def manhattan(state):
+
+def manhattan_distance(state):
     distance = 0
-    for i in range(9):
-        if state[i] != 0:
-            goal_pos = GOAL.index(state[i])
-            distance += abs(i//3 - goal_pos//3) + abs(i%3 - goal_pos%3)
+    for i in range(3):
+        for j in range(3):
+            value = state[i][j]
+            if value != 0:
+                ii = (value - 1) // 3
+                jj = (value - 1) % 3
+                distance += abs(i - ii) + abs(j - jj)
     return distance
 
+
+def is_goal(state):
+    return state == GOAL_STATE
+
+
+def find_zero(state):
+    for i in range(3):
+        for j in range(3):
+            if state[i][j] == 0:
+                return i, j
+
+
+# neighbors by sliding tiles
 def get_neighbors(state):
     neighbors = []
-    zero = state.index(0)
-    x, y = zero // 3, zero % 3
+    x, y = find_zero(state)
 
-    for dx, dy in MOVES:
+    for dx, dy in DIRECTIONS:
         nx, ny = x + dx, y + dy
         if 0 <= nx < 3 and 0 <= ny < 3:
-            new_zero = nx * 3 + ny
-            new_state = list(state)
-            new_state[zero], new_state[new_zero] = new_state[new_zero], new_state[zero]
-            neighbors.append(tuple(new_state))
+            new_state = [row[:] for row in state]
+            new_state[x][y], new_state[nx][ny] = new_state[nx][ny], new_state[x][y]
+            neighbors.append(new_state)
+
     return neighbors
 
-def best_first_search(start):
-    pq = []
-    heapq.heappush(pq, (manhattan(start), start, []))
+
+# Greedy Best First Search using Manhattan heuristic
+def find(start):
+    heap = []
+    heapq.heappush(heap, (manhattan_distance(start), start, []))
     visited = set()
 
-    while pq:
-        h, state, path = heapq.heappop(pq)
+    while heap:
+        h, state, path = heapq.heappop(heap)
 
-        if state == GOAL:
+        state_tuple = tuple(tuple(row) for row in state)
+        if state_tuple in visited:
+            continue
+        visited.add(state_tuple)
+
+        if is_goal(state):
             return path + [state]
 
-        if state in visited:
-            continue
-        visited.add(state)
-
         for neighbor in get_neighbors(state):
-            if neighbor not in visited:
+            neighbor_tuple = tuple(tuple(row) for row in neighbor)
+            if neighbor_tuple not in visited:
                 heapq.heappush(
-                    pq,
-                    (manhattan(neighbor), neighbor, path + [state])
+                    heap,
+                    (manhattan_distance(neighbor), neighbor, path + [state])
                 )
+
     return None
 
-def print_solution(solution):
+
+# Example Start State
+start_state = [[1, 2, 3],
+               [4, 0, 6],
+               [7, 5, 8]]
+
+solution = find(start_state)
+
+if solution:
+    print("Solution found in", len(solution) - 1, "moves.\n")
     for step in solution:
-        print(step[0:3])
-        print(step[3:6])
-        print(step[6:9])
-        print("------")
-
-start_state = (1, 2, 3,
-               4, 0, 6,
-               7, 5, 8)
-
-solution = best_first_search(start_state)
-print_solution(solution)
+        for row in step:
+            print(row)
+        print()
+else:
+    print("No solution found")
