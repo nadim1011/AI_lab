@@ -1,0 +1,16 @@
+ % Arithmetic operations
+ sum(X, Y, Z) :- Z is X + Y. 
+difference(X, Y, Z) :- Z is X - Y. 
+product(X, Y, Z) :- Z is X * Y. 
+quotient(X, Y, Z) :- Z is X / Y.
+ remainder(X, Y, Z) :- Z is X mod Y. 
+% Comparison example 
+greater(X, Y) :- X > Y. 
+
+Sample Queries
+ ?- sum(10, 5, Z). 
+?- difference(20, 7, Z). 
+?- product(4, 6, Z). 
+?- quotient(15, 3, Z). 
+?- remainder(17, 5, Z). 
+?- greater(9, 4).
